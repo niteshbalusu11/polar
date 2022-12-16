@@ -59,14 +59,17 @@ class CLightningService implements LightningService {
       channels
         // only include the channels that were initiated by this node
         .filter(
-          chan => chan.fundingAllocationMsat && chan.fundingAllocationMsat[pubkey] > 0,
+          chan =>
+            chan.opener === 'local' ||
+            // the fields below were deprecated in v0.12.0
+            (chan.fundingAllocationMsat && chan.fundingAllocationMsat[pubkey] > 0),
         )
         .filter(c => ChannelStateToStatus[c.state] !== 'Closed')
         .map(c => {
           const status = ChannelStateToStatus[c.state];
           return {
             pending: status !== 'Open',
-            uniqueId: c.fundingTxid.slice(-12),
+            uniqueId: c.fundingTxid ? c.fundingTxid.slice(-12) : '',
             channelPoint: c.channelId,
             pubkey: c.id,
             capacity: this.toSats(c.msatoshiTotal),

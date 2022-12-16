@@ -58,6 +58,7 @@ export const BasePorts: Record<NodeImplementation, Record<string, number>> = {
   'c-lightning': {
     rest: 8181,
     p2p: 9835,
+    grpc: 11001,
   },
   eclair: {
     rest: 8281,
@@ -108,7 +109,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
     variables: ['name', 'containerName', 'backendName', 'rpcUser', 'rpcPass'],
   },
   'c-lightning': {
-    name: 'c-lightning',
+    name: 'Core Lightning',
     imageName: 'polarlightning/clightning',
     logo: clightningLogo,
     platforms: ['mac', 'linux'],
@@ -117,6 +118,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       'lightningd',
       '--alias={{name}}',
       '--addr={{name}}',
+      '--addr=0.0.0.0:9735',
       '--network=regtest',
       '--bitcoin-rpcuser={{rpcUser}}',
       '--bitcoin-rpcpassword={{rpcPass}}',
@@ -125,6 +127,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--log-level=debug',
       '--dev-bitcoind-poll=2',
       '--dev-fast-gossip',
+      '--grpc-port=11001',
       '--plugin=/opt/c-lightning-rest/plugin.js',
       '--rest-port=8080',
       '--rest-protocol=http',
@@ -189,6 +192,8 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '-listen=1',
       '-listenonion=0',
       '-fallbackfee=0.0002',
+      '-blockfilterindex=1',
+      '-peerblockfilters=1',
     ].join('\n  '),
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
     variables: ['rpcUser', 'rpcAuth'],
@@ -217,42 +222,44 @@ export const REPO_STATE_URL =
  * are pushed to Docker Hub, this list should be updated along with the /docker/nodes.json file.
  */
 export const defaultRepoState: DockerRepoState = {
-  version: 35,
+  version: 44,
   images: {
     LND: {
-      latest: '0.14.2-beta',
+      latest: '0.15.5-beta',
       versions: [
-        '0.14.2-beta',
-        '0.14.1-beta',
+        '0.15.5-beta',
+        '0.15.4-beta',
+        '0.15.3-beta',
+        '0.15.2-beta',
+        '0.15.1-beta',
+        '0.15.0-beta',
+        '0.14.3-beta',
         '0.13.1-beta',
-        '0.13.0-beta',
-        '0.12.1-beta',
-        '0.11.1-beta',
-        '0.10.3-beta',
       ],
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
       compatibility: {
-        '0.14.2-beta': '22.0',
-        '0.14.1-beta': '22.0',
-        '0.13.1-beta': '22.0',
-        '0.13.0-beta': '22.0',
-        '0.12.1-beta': '22.0',
-        '0.11.1-beta': '22.0',
-        '0.10.3-beta': '22.0',
+        '0.15.5-beta': '24.0',
+        '0.15.4-beta': '24.0',
+        '0.15.3-beta': '24.0',
+        '0.15.2-beta': '24.0',
+        '0.15.1-beta': '24.0',
+        '0.15.0-beta': '24.0',
+        '0.14.3-beta': '24.0',
+        '0.13.1-beta': '24.0',
       },
     },
     'c-lightning': {
-      latest: '0.10.2',
-      versions: ['0.10.2', '0.10.0', '0.9.3', '0.8.2'],
+      latest: '22.11',
+      versions: ['22.11', '0.12.0', '0.11.2', '0.10.2'],
     },
     eclair: {
-      latest: '0.7.0',
-      versions: ['0.7.0', '0.6.2', '0.6.1', '0.6.0', '0.5.0', '0.4.2'],
+      latest: '0.8.0',
+      versions: ['0.8.0', '0.7.0', '0.6.2', '0.5.0'],
     },
     bitcoind: {
-      latest: '22.0',
-      versions: ['22.0', '0.21.1'],
+      latest: '24.0',
+      versions: ['24.0', '23.0', '22.0', '0.21.1'],
     },
     btcd: {
       latest: '',

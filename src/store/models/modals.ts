@@ -35,12 +35,25 @@ interface AdvancedOptionsModel {
   defaultCommand?: string;
 }
 
+interface ImageUpdatesModel {
+  visible: boolean;
+}
+
+interface SendOnChainModel {
+  visible: boolean;
+  backendName?: string;
+  toAddress?: string;
+  amount?: number;
+}
+
 export interface ModalsModel {
   openChannel: OpenChannelModel;
   changeBackend: ChangeBackendModel;
   createInvoice: CreateInvoiceModel;
   payInvoice: PayInvoiceModel;
   advancedOptions: AdvancedOptionsModel;
+  imageUpdates: ImageUpdatesModel;
+  sendOnChain: SendOnChainModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
   hideOpenChannel: Thunk<ModalsModel, void, StoreInjections, RootModel>;
@@ -56,6 +69,12 @@ export interface ModalsModel {
   setAdvancedOptions: Action<ModalsModel, AdvancedOptionsModel>;
   showAdvancedOptions: Thunk<ModalsModel, Partial<AdvancedOptionsModel>, StoreInjections>;
   hideAdvancedOptions: Thunk<ModalsModel, void, StoreInjections, RootModel>;
+  setImageUpdates: Action<ModalsModel, ImageUpdatesModel>;
+  showImageUpdates: Thunk<ModalsModel, void, StoreInjections>;
+  hideImageUpdates: Thunk<ModalsModel, void, StoreInjections, RootModel>;
+  setSendOnChain: Action<ModalsModel, SendOnChainModel>;
+  showSendOnChain: Thunk<ModalsModel, Partial<SendOnChainModel>, StoreInjections>;
+  hideSendOnChain: Thunk<ModalsModel, void, StoreInjections, RootModel>;
 }
 
 const modalsModel: ModalsModel = {
@@ -64,6 +83,8 @@ const modalsModel: ModalsModel = {
   createInvoice: { visible: false },
   payInvoice: { visible: false },
   advancedOptions: { visible: false },
+  imageUpdates: { visible: false },
+  sendOnChain: { visible: false },
   setOpenChannel: action((state, payload) => {
     state.openChannel = {
       ...state.openChannel,
@@ -155,6 +176,35 @@ const modalsModel: ModalsModel = {
       nodeName: undefined,
       command: undefined,
       defaultCommand: undefined,
+    });
+  }),
+  setImageUpdates: action((state, payload) => {
+    state.imageUpdates = {
+      ...state.imageUpdates,
+      ...payload,
+    };
+  }),
+  showImageUpdates: thunk(actions => {
+    actions.setImageUpdates({ visible: true });
+  }),
+  hideImageUpdates: thunk(actions => {
+    actions.setImageUpdates({ visible: false });
+  }),
+  setSendOnChain: action((state, payload) => {
+    state.sendOnChain = {
+      ...state.sendOnChain,
+      ...payload,
+    };
+  }),
+  showSendOnChain: thunk((actions, { toAddress, backendName, amount }) => {
+    actions.setSendOnChain({ visible: true, toAddress, backendName, amount });
+  }),
+  hideSendOnChain: thunk(actions => {
+    actions.setSendOnChain({
+      visible: false,
+      toAddress: undefined,
+      backendName: undefined,
+      amount: undefined,
     });
   }),
 };

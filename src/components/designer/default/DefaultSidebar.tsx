@@ -1,17 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { CloudSyncOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Button, Switch } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { NodeImplementation } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
-import { Network } from 'types';
 import { dockerConfigs } from 'utils/constants';
 import { getPolarPlatform } from 'utils/system';
 import SidebarCard from '../SidebarCard';
-import SyncButton from '../SyncButton';
 import DraggableNode from './DraggableNode';
-import ImageUpdatesModal from './ImageUpdatesModal';
 
 const Styled = {
   AddNodes: styled.h3`
@@ -31,21 +28,17 @@ const Styled = {
   `,
 };
 
-interface Props {
-  network: Network;
-}
-
-const DefaultSidebar: React.FC<Props> = ({ network }) => {
+const DefaultSidebar: React.FC = () => {
   const { l } = usePrefixedTranslation('cmps.designer.default.DefaultSidebar');
 
-  const [showUpdatesModal, setShowUpdatesModal] = useState(false);
   const { updateSettings } = useStoreActions(s => s.app);
+  const { showImageUpdates } = useStoreActions(s => s.modals);
   const { settings, dockerRepoState } = useStoreState(s => s.app);
   const showAll = settings.showAllNodeVersions;
   const currPlatform = getPolarPlatform();
 
   const toggleVersions = () => updateSettings({ showAllNodeVersions: !showAll });
-  const toggleModal = () => setShowUpdatesModal(!showUpdatesModal);
+  const toggleModal = () => showImageUpdates();
 
   const nodes: {
     label: string;
@@ -83,7 +76,7 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
   });
 
   return (
-    <SidebarCard title={l('title')} extra={<SyncButton network={network} />}>
+    <SidebarCard title={l('title')}>
       <p>{l('mainDesc')}</p>
       <Styled.AddNodes>{l('addNodesTitle')}</Styled.AddNodes>
       <Styled.AddDesc>{l('addNodesDesc')}</Styled.AddDesc>
@@ -101,17 +94,14 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
           visible={showAll || latest}
         />
       ))}
-      {showAll && (
-        <Styled.UpdatesButton
-          type="link"
-          block
-          icon={<CloudSyncOutlined />}
-          onClick={toggleModal}
-        >
-          {l('checkUpdates')}
-        </Styled.UpdatesButton>
-      )}
-      {showUpdatesModal && <ImageUpdatesModal onClose={toggleModal} />}
+      <Styled.UpdatesButton
+        type="link"
+        block
+        icon={<CloudSyncOutlined />}
+        onClick={toggleModal}
+      >
+        {l('checkUpdates')}
+      </Styled.UpdatesButton>
     </SidebarCard>
   );
 };

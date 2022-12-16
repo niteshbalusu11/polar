@@ -59,7 +59,7 @@ RUN mkdir -p eclair-node && cp /usr/repo/eclair-node/pom.xml eclair-node/pom.xml
 RUN mkdir -p eclair-node/modules && cp /usr/repo/eclair-node/modules/assembly.xml eclair-node/modules/assembly.xml
 RUN mkdir -p eclair-core/src/main/scala && touch eclair-core/src/main/scala/empty.scala
 # Blank build. We only care about eclair-node, and we use install because eclair-node depends on eclair-core
-ENV MAVEN_OPTS=-Xmx256m -XX:MaxPermSize=512m
+ENV MAVEN_OPTS=-Xmx512m -XX:MaxPermSize=1024m
 RUN mvn install -pl eclair-node -am
 RUN mvn clean
 # Only then do we copy the sources
@@ -71,7 +71,7 @@ RUN mvn package -pl eclair-node -am -DskipTests -Dgit.commit.id=notag -Dgit.comm
 # It might be good idea to run the tests here, so that the docker build fail if the code is bugged
 
 # We currently use a debian image for runtime because of some jni-related issue with sqlite
-FROM openjdk:11.0.14-jre-slim
+FROM openjdk:11.0.16-jre-slim
 WORKDIR /app
 
 # install jq for eclair-cli
